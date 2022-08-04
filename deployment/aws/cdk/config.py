@@ -8,8 +8,8 @@ import pydantic
 class StackSettings(pydantic.BaseSettings):
     """Application settings"""
 
-    name: str = "titiler"
-    stage: str = "production"
+    name: str = "aims-tiler"
+    stage: str = "dev"
 
     owner: Optional[str]
     client: Optional[str]
