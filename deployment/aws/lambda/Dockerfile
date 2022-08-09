@@ -4,10 +4,14 @@ FROM --platform=linux/amd64 public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
 WORKDIR /tmp
 
-RUN yum install git
+RUN yum install -y git
 RUN pip install pip -U
 RUN pip install "mangum>=0.10.0" -t /asset --no-binary pydantic
-RUN pip install titiler@git+https://github.com/gcoleman72/titiler@v0.7.1
+RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/core
+RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/mosaic
+RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application
+RUN pip install git+https://github.com/gcoleman72/titiler
+
 
 
 # Reduce package size and remove useless files
