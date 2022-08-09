@@ -3,21 +3,22 @@
 import os
 from typing import Any, Dict, List, Optional, Union
 
-from aws_cdk import aws_apigatewayv2 as apigw
-from aws_cdk import aws_apigatewayv2_integrations as apigw_integrations
+from aws_cdk import aws_apigatewayv2_alpha as apigwv2, Duration, CfnOutput, App, Tags
+from aws_cdk import aws_apigatewayv2_integrations_alpha as apigw_integrations
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ecs as ecs
 from aws_cdk import aws_ecs_patterns as ecs_patterns
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda
 from aws_cdk import aws_logs as logs
-from aws_cdk import core
+from aws_cdk import Stack
+from constructs import Construct
 from config import StackSettings
 
 settings = StackSettings()
 
 
-class titilerLambdaStack(core.Stack):
+class titilerLambdaStack(Stack):
     """
     Titiler Lambda Stack
 
@@ -29,7 +30,7 @@ class titilerLambdaStack(core.Stack):
 
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         memory: int = 1024,
         timeout: int = 30,
@@ -57,7 +58,7 @@ class titilerLambdaStack(core.Stack):
             handler="handler.handler",
             memory_size=memory,
             reserved_concurrent_executions=concurrent,
-            timeout=core.Duration.seconds(timeout),
+            timeout=Duration.seconds(timeout),
             environment=environment,
             log_retention=logs.RetentionDays.ONE_WEEK,
         )
@@ -65,22 +66,22 @@ class titilerLambdaStack(core.Stack):
         for perm in permissions:
             lambda_function.add_to_role_policy(perm)
 
-        api = apigw.HttpApi(
+        api = apigwv2.HttpApi(
             self,
             f"{id}-endpoint",
             default_integration=apigw_integrations.HttpLambdaIntegration(
                 f"{id}-integration", handler=lambda_function
             ),
         )
-        core.CfnOutput(self, "Endpoint", value=api.url)
+        CfnOutput(self, "Endpoint", value=api.url)
 
 
-class titilerECSStack(core.Stack):
+class titilerECSStack(Stack):
     """Titiler ECS Fargate Stack."""
 
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         cpu: Union[int, float] = 256,
         memory: Union[int, float] = 512,
@@ -142,8 +143,8 @@ class titilerECSStack(core.Stack):
         scalable_target.scale_on_request_count(
             "RequestScaling",
             requests_per_target=50,
-            scale_in_cooldown=core.Duration.seconds(240),
-            scale_out_cooldown=core.Duration.seconds(30),
+            scale_in_cooldown=Duration.seconds(240),
+            scale_out_cooldown=Duration.seconds(30),
             target_group=fargate_service.target_group,
         )
 
@@ -161,7 +162,7 @@ class titilerECSStack(core.Stack):
         )
 
 
-app = core.App()
+app = App()
 
 perms = []
 if settings.buckets:
@@ -183,7 +184,7 @@ for key, value in {
     "Client": settings.client,
 }.items():
     if value:
-        core.Tag.add(app, key, value)
+        Tags.of(app).add(key, value)
 
 ecs_stackname = f"{settings.name}-ecs-{settings.stage}"
 titilerECSStack(
