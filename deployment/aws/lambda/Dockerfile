@@ -7,7 +7,7 @@ WORKDIR /tmp
 RUN yum install -y git
 RUN pip install pip -U
 RUN pip install "mangum>=0.10.0" -t /asset --no-binary pydantic
-RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/core git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/mosaic git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application -t /asset
+RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/core git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/mosaic git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application -t /asset --upgrade --force-reinstall
 # RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/mosaic -t /asset
 # RUN pip install git+https://github.com/gcoleman72/titiler#subdirectory=src/titiler/application -t /asset
 # RUN pip install git+https://github.com/gcoleman72/titiler -t /asset
